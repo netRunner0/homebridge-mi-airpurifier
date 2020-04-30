@@ -264,19 +264,14 @@ MiAirPurifier2SAirPurifierAccessory.prototype.getServices = function() {
                         that.device.call("get_prop", ["favorite_level"]).then(result => {
                             that.platform.log.debug("[MiAirPurifierPlatform][DEBUG]MiAirPurifier2SAirPurifierAccessory - TargetAirPurifierState - getRotationSpeed: " + result);
                             silentModeOnCharacteristic.updateValue(false);
-                            if(rotationSpeedCharacteristic.value <= result[0] * 10 && rotationSpeedCharacteristic.value > (result[0] - 1) * 10) {
-                                callback(null);
-                            } else {
-                                rotationSpeedCharacteristic.value = result[0] * 10;
-                                callback(null);
-                            }
+                            rotationSpeedCharacteristic.value = parseInt(result[0] / 0.17);
                         }).catch(function(err) {
                             that.platform.log.error("[MiAirPurifierPlatform][ERROR]MiAirPurifier2SAirPurifierAccessory - TargetAirPurifierState - getRotationSpeed: " + err);
                             callback(err);
                         });
                     }
                 } else {
-                    callback(new Error(result[0]));
+                    callback(null, parseInt(result[0] / 0.17));
                 }
             }).catch(function(err) {
                 that.platform.log.error("[MiAirPurifierPlatform][ERROR]MiAirPurifier2SAirPurifierAccessory - TargetAirPurifierState - setTargetAirPurifierState Error: " + err);
@@ -299,7 +294,7 @@ MiAirPurifier2SAirPurifierAccessory.prototype.getServices = function() {
             if(value == 0) {
                 callback(null);
             } else {
-                that.device.call("set_level_favorite", [that.getFavoriteLevelByRotationSpeed(value)]).then(result => {
+                that.device.call("set_level_favorite", [parseInt(value * 0.17)]).then(result => {
                     that.platform.log.debug("[MiAirPurifierPlatform][DEBUG]MiAirPurifier2SAirPurifierAccessory - RotationSpeed - setRotationSpeed Result: " + result);
                     if(result[0] === "ok") {
 //                      that.device.call("set_mode", ["favorite"]).then(result => {
